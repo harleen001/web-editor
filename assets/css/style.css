@@ -1,0 +1,130 @@
+body{
+    background: #659999;  
+background: -webkit-linear-gradient(to right, #f4791f, #659999); 
+background: linear-gradient(to right, #f4791f, #659999); 
+}
+
+#mainnav{
+    width:1460px;
+    border-radius: 10px;
+    height: 60px;
+    background-color: white;
+    margin-top: 30px;
+    margin-left: 30px;
+    margin-right: 30px;
+    margin-bottom: -10px;
+}
+
+#canvas-container {
+    border: 1px solid #ccc;
+    margin-top: -64px;
+    margin-left: 30px;
+    margin-right: 30px;
+    background-color: white;
+    border-radius: 10px;
+  }
+
+  #topnavbar{
+    position: relative;
+    display: flex;
+    justify-content: space-evenly; 
+    align-items: center;
+    width: 100px;
+    height: 60px;
+  
+    top:-50px;
+    
+    padding-left: 10px;
+    padding-right: 10px;
+    margin: 0 auto;
+  }
+  #bottomnavbar {
+    position: relative;
+    display: flex;
+    justify-content: space-evenly; 
+    align-items: center;
+    width: 700px;
+    height: 60px;
+    background-color: #dddddd;
+    margin: 0 auto;
+    margin-bottom: -100px;
+    border-radius: 100px;
+    top: -30px;
+}
+
+.toolbar {
+    display: flex;
+    gap: 10px;
+    width: 100%; 
+    justify-content: space-evenly;
+}
+
+#bottomnavbar button, #topnavbar button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#bottomnavbar label {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#font-selector {
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    padding: 5px;
+    margin-left: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+#font-size-display {
+    font-size: 18px;
+    margin: 0 10px;
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+}
+
+#inc, #dec{
+    font-size: 12px !important;
+}
+
+
+
+.toolbar button {
+    padding: 10px;
+    background-color: #f0f0f0;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.toolbar button:hover {
+    background-color: #e0e0e0;
+}
+
+
+#bottomnavbar input {
+    width: 50px;
+    font-size: 16px;
+    text-align: center;
+    padding: 5px;
+    margin: 0 5px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    background-color: #fff;
+    transition: border-color 0.3s;
+}
+
+#bottomnavbar input:focus {
+    border-color: #aaa;
+}
