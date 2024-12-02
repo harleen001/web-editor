@@ -1,130 +1,170 @@
-body{
-    background: #659999;  
-background: -webkit-linear-gradient(to right, #f4791f, #659999); 
-background: linear-gradient(to right, #f4791f, #659999); 
+const canvas = new fabric.Canvas('editor-canvas');
+const undoStack = [];
+const redoStack = [];
+let selectedText = null;
+
+canvas.on('object:modified', saveState);
+canvas.on('object:added', saveState);
+
+// Save canvas state for undo/redo functionality
+function saveState() {
+    redoStack.length = 0;
+    undoStack.push(canvas.toJSON());
 }
 
-#mainnav{
-    width:1460px;
-    border-radius: 10px;
-    height: 60px;
-    background-color: white;
-    margin-top: 30px;
-    margin-left: 30px;
-    margin-right: 30px;
-    margin-bottom: -10px;
+// Undo functionality
+function undo() {
+    if (undoStack.length > 0) {
+        redoStack.push(undoStack.pop());
+        canvas.loadFromJSON(undoStack[undoStack.length - 1] || {}, canvas.renderAll.bind(canvas));
+    }
 }
 
-#canvas-container {
-    border: 1px solid #ccc;
-    margin-top: -64px;
-    margin-left: 30px;
-    margin-right: 30px;
-    background-color: white;
-    border-radius: 10px;
-  }
-
-  #topnavbar{
-    position: relative;
-    display: flex;
-    justify-content: space-evenly; 
-    align-items: center;
-    width: 100px;
-    height: 60px;
-  
-    top:-50px;
-    
-    padding-left: 10px;
-    padding-right: 10px;
-    margin: 0 auto;
-  }
-  #bottomnavbar {
-    position: relative;
-    display: flex;
-    justify-content: space-evenly; 
-    align-items: center;
-    width: 700px;
-    height: 60px;
-    background-color: #dddddd;
-    margin: 0 auto;
-    margin-bottom: -100px;
-    border-radius: 100px;
-    top: -30px;
+// Redo functionality
+function redo() {
+    if (redoStack.length > 0) {
+        const nextState = redoStack.pop();
+        undoStack.push(JSON.stringify(canvas.toJSON()));
+        canvas.loadFromJSON(nextState, canvas.renderAll.bind(canvas));
+    }
 }
 
-.toolbar {
-    display: flex;
-    gap: 10px;
-    width: 100%; 
-    justify-content: space-evenly;
+// Font selection
+function changeFontFamily(font) {
+    const activeObject = canvas.getActiveObject();
+    if (activeObject && activeObject.type === 'i-text') {
+        activeObject.set({ fontFamily: font });
+        canvas.renderAll();
+    }
 }
 
-#bottomnavbar button, #topnavbar button {
-    background: none;
-    border: none;
-    cursor: pointer;
-    padding: 10px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+// Initialize font dropdown
+function initializeFontDropdown() {
+    const fontDropdown = document.getElementById('font-selector');
+    const fonts = ['Arial', 'Verdana', 'Times New Roman', 'Courier New', 'Georgia'];
+    fonts.forEach(font => {
+        const option = document.createElement('option');
+        option.value = font;
+        option.text = font;
+        fontDropdown.appendChild(option);
+    });
+    fontDropdown.addEventListener('change', (event) => {
+        changeFontFamily(event.target.value);
+    });
 }
 
-#bottomnavbar label {
-    background: none;
-    border: none;
-    cursor: pointer;
-    padding: 10px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+// Increase font size
+function increaseFontSize() {
+    const activeObject = canvas.getActiveObject();
+    if (activeObject && activeObject.type === 'i-text') {
+        const currentFontSize = activeObject.fontSize;
+        const newFontSize = Math.min(currentFontSize + 2, 100);
+        activeObject.set('fontSize', newFontSize);
+        canvas.renderAll();
+        updateFontSizeDisplay();
+    }
 }
 
-#font-selector {
-    font-family: Verdana, Geneva, Tahoma, sans-serif;
-    padding: 5px;
-    margin-left: 10px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
+// Decrease font size
+function decreaseFontSize() {
+    const activeObject = canvas.getActiveObject();
+    if (activeObject && activeObject.type === 'i-text') {
+        const currentFontSize = activeObject.fontSize;
+        const newFontSize = Math.max(currentFontSize - 2, 8);
+        activeObject.set('fontSize', newFontSize);
+        canvas.renderAll();
+        updateFontSizeDisplay();
+    }
 }
 
-#font-size-display {
-    font-size: 18px;
-    margin: 0 10px;
-    font-family: Verdana, Geneva, Tahoma, sans-serif;
+// Update font size input and display
+function updateFontSizeDisplay() {
+    const activeObject = canvas.getActiveObject();
+    if (activeObject && activeObject.type === 'i-text') {
+        const fontSizeInput = document.getElementById('font-size-input');
+        fontSizeInput.value = activeObject.fontSize;
+    }
 }
 
-#inc, #dec{
-    font-size: 12px !important;
+// Update font size from input field
+function updateFontSizeFromInput() {
+    const fontSizeInput = document.getElementById('font-size-input');
+    const newFontSize = parseInt(fontSizeInput.value, 10);
+    const activeObject = canvas.getActiveObject();
+    if (activeObject && !isNaN(newFontSize)) {
+        const clampedFontSize = Math.min(Math.max(newFontSize, 8), 100);
+        activeObject.set('fontSize', clampedFontSize);
+        canvas.renderAll();
+    }
 }
 
-
-
-.toolbar button {
-    padding: 10px;
-    background-color: #f0f0f0;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s;
+// Add text
+function addText() {
+    const text = new fabric.IText('Hello, Harleen', {
+        left: 100,
+        top: 100,
+        fontSize: 20,
+        fill: 'black',
+        fontFamily: 'Arial',
+    });
+    canvas.add(text);
+    canvas.setActiveObject(text);
+    updateFontSizeDisplay();
 }
 
-.toolbar button:hover {
-    background-color: #e0e0e0;
+// Add image
+function addImage(event) {
+    const reader = new FileReader();
+    reader.onload = function (e) {
+        fabric.Image.fromURL(e.target.result, (img) => {
+            img.scaleToWidth(200);
+            canvas.add(img);
+        });
+    };
+    reader.readAsDataURL(event.target.files[0]);
 }
 
-
-#bottomnavbar input {
-    width: 50px;
-    font-size: 16px;
-    text-align: center;
-    padding: 5px;
-    margin: 0 5px;
-    border-radius: 5px;
-    border: 1px solid #ccc;
-    background-color: #fff;
-    transition: border-color 0.3s;
+// Set bold
+function setBold() {
+    const activeObject = canvas.getActiveObject();
+    if (activeObject && activeObject.type === 'i-text') {
+        activeObject.fontWeight = activeObject.fontWeight === 'bold' ? 'normal' : 'bold';
+        canvas.renderAll();
+    }
 }
 
-#bottomnavbar input:focus {
-    border-color: #aaa;
+// Set italic
+function setItalic() {
+    const activeObject = canvas.getActiveObject();
+    if (activeObject && activeObject.type === 'i-text') {
+        activeObject.fontStyle = activeObject.fontStyle === 'italic' ? 'normal' : 'italic';
+        canvas.renderAll();
+    }
 }
+
+// Set underline
+function setUnderline() {
+    const activeObject = canvas.getActiveObject();
+    if (activeObject && activeObject.type === 'i-text') {
+        activeObject.fontStyle = activeObject.fontStyle === 'underline' ? 'normal' : 'underline';
+        canvas.renderAll();
+    }
+}
+
+// Set text justify (left, center, right)
+function setTextJustify() {
+    const activeObject = canvas.getActiveObject();
+    if (activeObject && activeObject.type === 'i-text') {
+        let currentAlign = activeObject.textAlign;
+        if (currentAlign === 'left') {
+            activeObject.set('textAlign', 'center');
+        } else if (currentAlign === 'center') {
+            activeObject.set('textAlign', 'right');
+        } else {
+            activeObject.set('textAlign', 'left');
+        }
+        canvas.renderAll();
+    }
+}
+
+initializeFontDropdown();
